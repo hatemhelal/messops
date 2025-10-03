@@ -48,10 +48,14 @@ target_link_libraries(_core PRIVATE libint2 Eigen3::Eigen)
 # --- Installation ---
 # Set RPATH so the module can find libint2.so. In the build tree, it will look
 # in the libint2 build directory. After installation, it will look in the same
-# directory as the module itself ($ORIGIN).
-set(CMAKE_INSTALL_RPATH "$ORIGIN")
-set_target_properties(_core PROPERTIES BUILD_RPATH "${libint2_BINARY_DIR}/src"
-                                       INSTALL_RPATH "$ORIGIN")
+# directory as the module itself. We use @rpath for the library reference and
+# set the install RPATH to @loader_path (macOS) or $ORIGIN (Linux).
+set(CMAKE_MACOSX_RPATH ON)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(
+  _core PROPERTIES BUILD_RPATH "${libint2_BINARY_DIR}/src" INSTALL_RPATH
+                                                           "@loader_path"
+)# CMake translates this to $ORIGIN on Linux
 
 # Install the _core module and its libint2 dependency into the package
 # directory.

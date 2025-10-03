@@ -19,8 +19,7 @@ def h2o():
     return (z, pos)
 
 
-# basis_name_cases = ["6-31g", "cc-pvdz", "def2-dzvppd"]
-basis_name_cases = ["6-31g", "cc-pvdz"]
+basis_name_cases = ["6-31g", "cc-pvdz", "def2-tzvppd"]
 
 
 @pytest.mark.parametrize("basis_name", basis_name_cases)
@@ -29,10 +28,7 @@ def test_one_body_integrals(benchmark, h2o, basis_name):
 
     def compute():
         ctx = IntegralContext(z, pos, basis_name)
-        S = ctx.overlap()
-        T = ctx.kinetic()
-        V = ctx.nuclear()
-        return S, T, V
+        return ctx.one_body_integrals()
 
     S, T, V = benchmark(compute)
 
