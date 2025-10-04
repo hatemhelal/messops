@@ -5,6 +5,7 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 
 #include <iostream>
 #include <vector>
@@ -64,6 +65,10 @@ struct IntegralContext {
     return integrate_1body(basis, libint2::Operator::nuclear, atoms);
   }
 
+  std::tuple<Matrix, Matrix, Matrix> one_body_integrals() const {
+    return std::make_tuple(overlap(), kinetic(), nuclear());
+  }
+
   std::string to_string() const {
     std::stringstream ss;
     ss << "IntegralContext(\n"
@@ -82,6 +87,7 @@ NB_MODULE(_core, m) {
       .def("overlap", &IntegralContext::overlap)
       .def("kinetic", &IntegralContext::kinetic)
       .def("nuclear", &IntegralContext::nuclear)
+      .def("one_body_integrals", &IntegralContext::one_body_integrals)
       .def_ro("basis_name", &IntegralContext::basis_name)
       .def_prop_ro(
           "num_atoms",
