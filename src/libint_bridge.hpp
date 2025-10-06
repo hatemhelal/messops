@@ -10,21 +10,14 @@ using Matrix =
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 Matrix integrate_1body(const libint2::BasisSet &basis, libint2::Operator optype,
-                       const std::vector<libint2::Atom> &atoms) {
-  using libint2::Engine;
-  using libint2::Operator;
-  using libint2::Shell;
-
-  Engine engine(optype, basis.max_nprim(), basis.max_l(), /*deriv_order=*/0);
+                       const std::vector<libint2::Atom> &atoms, int deriv_order,
+                       double precision) {
+  libint2::Engine engine(optype, basis.max_nprim(), basis.max_l(), deriv_order,
+                         precision);
   const auto &buf = engine.results();
 
-  if (optype == Operator::nuclear) {
-    std::vector<std::pair<double, std::array<double, 3>>> q;
-    for (const auto &atom : atoms) {
-      q.push_back({static_cast<double>(atom.atomic_number),
-                   {{atom.x, atom.y, atom.z}}});
-    }
-    engine.set_params(q);
+  if (optype == libint2::Operator::nuclear) {
+    engine.set_params(libint2::make_point_charges(atoms));
   }
 
   Matrix result = Matrix::Zero(basis.nbf(), basis.nbf());
